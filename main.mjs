@@ -86,7 +86,7 @@ client.on("messageCreate", async (message) => {
 });
 
 client.on("ready", async () => {
-  await client.user.setActivity('🥔', { type: ActivityType.Custom, state: "🥔を栽培中" });
+  await client.user.setActivity( { type: ActivityType.Custom, state: "これは試験Bot" });
   console.log(`${client.user.tag} がログインしました！`);
 });
 
