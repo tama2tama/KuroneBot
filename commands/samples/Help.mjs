@@ -1,59 +1,36 @@
-class MyHelpCommand(commands.HelpCommand):
+import { SlashCommandBuilder } from "discord.js";
 
-    def __init__(self):
-        super().__init__(
-            show_hidden=False, # 隠しコマンドを表示するかどうか
-            command_attrs={"brief": "ヘルプを表示"} # ヘルプコマンドの説明
-        )
+// コマンドの一覧を定義
+const commands = {
+  '/gacha': 'ガチャを引くよ～',
+  '/janken': 'じゃんけんで対決！',
+  '/nyan': 'BOTの応答速度をチェックします。',
+  '/uranai': 'BOTの応答速度をチェックします。',
+};
 
+export const data = new SlashCommandBuilder()
+  .setName("help")
+  .setDescription("コマンド一覧を表示");
 
-    async def send_bot_help(self, mapping: Mapping[Optional[commands.Cog], list[commands.Command]]) -> None:
-        """引数なしでヘルプコマンドを実行したときに表示されるヘルプメッセージ ($helpみたいな)
+export async function execute(interaction) {
+  const arr = ["SSR 金のじゃがいも", "SR 銀のじゃがいも", "R 銅のじゃがいも", "N ただのじゃがいも"];
+  const weight = [2, 4, 8, 16];
+  let result = "";
 
-        Parameters
-        ----------
-        mapping : Mapping[Optional[commands.Cog], list[commands.Command]]
-            ヘルプのためにユーザーから要求されたコマンドへのコグのマッピング。
-            マッピングのキーはコマンドが属する Cog です。値がない場合は None になり、そのコグに属するコマンドのリストになります。
-        """
-        e = discord.Embed(title="ヘルプ", description="コマンドの使い方")
+  let totalWeight = 0;
+  for (let i = 0; i < weight.length; i++) {
+    totalWeight += weight[i];
+  }
+  let random = Math.floor(Math.random() * totalWeight);
+  
+  for (let i = 0; i < weight.length; i++) {
+    if (random < weight[i]) {
+      result = arr[i];
+      break;
+    } else {
+      random -= weight[i];
+    }
+  }
 
-        cmds = mapping[None] # コマンドのリストを取得 (Cogを使わないのでNoneを指定)
-
-        for command in (await self.filter_commands(cmds)): # 隠しコマンドを除外
-            e.add_field(name=command.name, value=f'> {command.brief}', inline=False)
-
-        await self.get_destination().send(embed=e) # ヘルプメッセージを送信
-
-
-bot = commands.Bot(
-    command_prefix="$",
-    help_command=MyHelpCommand(),
-    case_insensitive=True, # 大文字小文字を区別しない ($help と $Help は同じ)
-    intents=discord.Intents.all() # botの権限
-)
-
-@bot.event
-async def on_ready():
-    """botが起動したときに実行されるイベント"""""
-    print("ready")
-
-
-@bot.command(
-    name="hello",
-    hidden=False,
-    brief="挨拶をする"
-)
-async def hello(ctx: commands.Context):
-    """$hello と実行すると挨拶をするコマンド"""
-    await ctx.send("hello")
-
-
-@bot.command(
-    name="bye",
-    hidden=True, # 隠しコマンド
-    brief="別れ挨拶をする"
-)
-async def bye(ctx: commands.Context):
-    """$bye と実行すると別れ挨拶をするコマンド"""
-    await ctx.send("bye")
+  await interaction.reply(`${result} が当選しました！`);
+}
